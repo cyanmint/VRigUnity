@@ -24,16 +24,18 @@ jobs:
           - { targetPlatform: "StandaloneWindows64", systemName: "Windows", os: "ubuntu-latest" }
           - { targetPlatform: "StandaloneLinux64", systemName: "Linux", os: "ubuntu-latest" }
           - { targetPlatform: "StandaloneOSX", systemName: "OSX", os: "ubuntu-latest" }
+          - { targetPlatform: "Android", systemName: "Android", os: "ubuntu-latest" }
+          - { targetPlatform: "WebGL", systemName: "WebGL", os: "ubuntu-latest" }
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
 
       - name: Download libs
         run: bash download_libs.sh "${{ inputs.tag }}"
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: Library
           key: Library-${{ matrix.data.targetPlatform }}
@@ -50,7 +52,7 @@ jobs:
           checkName: ${{ matrix.data.systemName }} results
           testMode: PlayMode
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ matrix.data.targetPlatform == 'StandaloneLinux64' }}
         with:
           name: Results ${{ matrix.data.systemName }}
@@ -65,7 +67,7 @@ jobs:
           versioning: None
           targetPlatform: ${{ matrix.data.targetPlatform }}
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: VRigUnity-${{ matrix.data.systemName }}
           path: build/${{ matrix.data.targetPlatform }}
