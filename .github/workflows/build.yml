@@ -24,6 +24,8 @@ jobs:
           - { targetPlatform: "StandaloneWindows64", systemName: "Windows", os: "ubuntu-latest" }
           - { targetPlatform: "StandaloneLinux64", systemName: "Linux", os: "ubuntu-latest" }
           - { targetPlatform: "StandaloneOSX", systemName: "OSX", os: "ubuntu-latest" }
+          - { targetPlatform: "Android", systemName: "Android", os: "ubuntu-latest" }
+          - { targetPlatform: "WebGL", systemName: "WebGL", os: "ubuntu-latest" }
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
