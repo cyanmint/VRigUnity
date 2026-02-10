@@ -33,6 +33,29 @@ var timestamp_ms := 0
 
 # Model file path (needs to be downloaded separately)
 const HOLISTIC_MODEL_PATH = "res://addons/GDMP/models/holistic_landmarker.task"
+# Alternative paths for exported builds
+const HOLISTIC_MODEL_PATHS = [
+	"res://addons/GDMP/models/holistic_landmarker.task",
+	"user://models/holistic_landmarker.task",
+	"res://models/holistic_landmarker.task"
+]
+
+func get_model_path() -> String:
+	"""Find the holistic model file in various locations"""
+	for path in HOLISTIC_MODEL_PATHS:
+		if FileAccess.file_exists(path):
+			if DebugLogger:
+				DebugLogger.log_debug("HolisticSolution", "Found model file at: " + path)
+			return path
+	
+	# Check in user data directory (for manual installation)
+	var user_path = "user://holistic_landmarker.task"
+	if FileAccess.file_exists(user_path):
+		if DebugLogger:
+			DebugLogger.log_debug("HolisticSolution", "Found model file in user directory")
+		return user_path
+	
+	return ""
 
 func _ready():
 	if DebugLogger:
@@ -57,23 +80,33 @@ func setup_mediapipe():
 	if DebugLogger:
 		DebugLogger.log_info("HolisticSolution", "Setting up MediaPipe Holistic tracking...")
 	
-	# Check if model file exists (user needs to download separately)
-	if not FileAccess.file_exists(HOLISTIC_MODEL_PATH):
-		var warning_msg = "Holistic model file not found at: " + HOLISTIC_MODEL_PATH
+	# Check if model file exists
+	var model_path = get_model_path()
+	if model_path == "":
+		var warning_msg = "Holistic model file not found in any of these locations:"
 		if DebugLogger:
 			DebugLogger.log_warning("HolisticSolution", warning_msg)
-			DebugLogger.log_warning("HolisticSolution", "Please download the holistic_landmarker.task model from MediaPipe")
+			for path in HOLISTIC_MODEL_PATHS:
+				DebugLogger.log_warning("HolisticSolution", "  - " + path)
+			DebugLogger.log_warning("HolisticSolution", "Please download holistic_landmarker.task from:")
+			DebugLogger.log_warning("HolisticSolution", "  https://storage.googleapis.com/mediapipe-models/holistic_landmarker/holistic_landmarker/float16/latest/holistic_landmarker.task")
+			DebugLogger.log_warning("HolisticSolution", "And place it in: " + str(OS.get_user_data_dir()))
 		push_warning(warning_msg)
-		# Continue anyway - will fail gracefully when trying to initialize
+		# Don't return - still try to initialize camera for preview
 	
 	# Initialize camera first
-	if not setup_camera():
+	var camera_ok = await setup_camera()
+	if not camera_ok:
 		if DebugLogger:
 			DebugLogger.log_error("HolisticSolution", "Failed to initialize camera")
 		return
 	
-	# Create holistic tracking graph
-	create_holistic_graph()
+	# Create holistic tracking graph if model is available
+	if model_path != "":
+		create_holistic_graph(model_path)
+	else:
+		if DebugLogger:
+			DebugLogger.log_warning("HolisticSolution", "Skipping MediaPipe graph creation - model file not found")
 
 func setup_camera() -> bool:
 	if DebugLogger:
@@ -82,33 +115,59 @@ func setup_camera() -> bool:
 	# Get camera server
 	var server = CameraServer
 	
-	# Check if we have any feeds
+	# On some platforms (especially Windows), cameras need to be added manually
+	# Try to add cameras if none are present
 	if server.get_feed_count() == 0:
 		if DebugLogger:
-			DebugLogger.log_error("HolisticSolution", "No camera feeds available")
-		push_error("No camera feeds available")
-		return false
+			DebugLogger.log_debug("HolisticSolution", "No camera feeds detected, attempting to add default cameras...")
+		
+		# Try to add cameras by index (0-9)
+		for i in range(10):
+			var feed_name = "Camera " + str(i)
+			var feed = server.add_feed(feed_name, CameraServer.FEED_RGBA_IMAGE, Transform2D())
+			if feed:
+				if DebugLogger:
+					DebugLogger.log_info("HolisticSolution", "Added camera feed: " + feed_name)
+				break  # Successfully added at least one feed
+		
+		# Check again after trying to add
+		if server.get_feed_count() == 0:
+			if DebugLogger:
+				DebugLogger.log_error("HolisticSolution", "No camera feeds available even after attempting to add")
+				DebugLogger.log_error("HolisticSolution", "Please ensure a webcam is connected and accessible")
+			push_error("No camera feeds available - please connect a webcam")
+			return false
 	
 	# Get the first available feed
 	camera_feed = server.get_feed(0)
 	if not camera_feed:
 		if DebugLogger:
-			DebugLogger.log_error("HolisticSolution", "Failed to get camera feed")
+			DebugLogger.log_error("HolisticSolution", "Failed to get camera feed 0")
 		push_error("Failed to get camera feed")
 		return false
+	
+	if DebugLogger:
+		DebugLogger.log_info("HolisticSolution", "Using camera feed: " + camera_feed.get_name())
 	
 	# Create camera texture
 	camera_texture = CameraTexture.new()
 	camera_texture.camera_feed_id = camera_feed.get_id()
+	camera_texture.camera_is_active = true
 	
-	# Start the feed
-	camera_feed.set_active(true)
+	# Activate the feed
+	if not camera_feed.is_active():
+		camera_feed.set_active(true)
+		if DebugLogger:
+			DebugLogger.log_debug("HolisticSolution", "Activated camera feed")
+	
+	# Wait a moment for camera to initialize
+	await get_tree().create_timer(0.5).timeout
 	
 	if DebugLogger:
-		DebugLogger.log_info("HolisticSolution", "Camera initialized: " + camera_feed.get_name())
+		DebugLogger.log_info("HolisticSolution", "Camera initialized successfully: " + camera_feed.get_name())
 	return true
 
-func create_holistic_graph():
+func create_holistic_graph(model_path: String):
 	if not gdmp_available:
 		if DebugLogger:
 			DebugLogger.log_warning("HolisticSolution", "Cannot create graph: GDMP not available")
@@ -118,17 +177,17 @@ func create_holistic_graph():
 		DebugLogger.log_debug("HolisticSolution", "Creating Holistic graph...")
 	
 	# Check if model exists
-	if not FileAccess.file_exists(HOLISTIC_MODEL_PATH):
+	if not FileAccess.file_exists(model_path):
 		if DebugLogger:
-			DebugLogger.log_error("HolisticSolution", "Cannot create graph: model file not found at " + HOLISTIC_MODEL_PATH)
+			DebugLogger.log_error("HolisticSolution", "Cannot create graph: model file not found at " + model_path)
 		push_error("Cannot create graph: model file not found")
 		return
 	
 	# Load model file
-	var file = FileAccess.open(HOLISTIC_MODEL_PATH, FileAccess.READ)
+	var file = FileAccess.open(model_path, FileAccess.READ)
 	if not file:
 		if DebugLogger:
-			DebugLogger.log_error("HolisticSolution", "Failed to open model file: " + HOLISTIC_MODEL_PATH)
+			DebugLogger.log_error("HolisticSolution", "Failed to open model file: " + model_path)
 		push_error("Failed to open model file")
 		return
 	
@@ -136,7 +195,8 @@ func create_holistic_graph():
 	file.close()
 	
 	if DebugLogger:
-		DebugLogger.log_debug("HolisticSolution", "Model file loaded, size: " + str(file_buffer.size()) + " bytes")
+		DebugLogger.log_info("HolisticSolution", "Model file loaded from: " + model_path)
+		DebugLogger.log_debug("HolisticSolution", "Model file size: " + str(file_buffer.size()) + " bytes")
 	
 	# Create MediaPipe graph using GDMP
 	var package_name = "mediapipe.tasks.vision.holistic_landmarker"
