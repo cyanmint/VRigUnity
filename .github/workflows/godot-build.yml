@@ -134,16 +134,21 @@ jobs:
             cp -r /root/.local/share/godot/export_templates/4.5.stable ~/.local/share/godot/export_templates/4.5.stable
           fi
       
-      - name: Install Android build template
+      - name: Setup Android SDK configuration
         run: |
-          mkdir -p android/build
-          cd android/build
-          if [ ! -f "/root/.local/share/godot/export_templates/4.5.stable/android_source.zip" ]; then
-            echo "ERROR: Android source template not found!"
-            exit 1
-          fi
-          unzip -q /root/.local/share/godot/export_templates/4.5.stable/android_source.zip
-          echo "4.5.stable" > .build_version
+          mkdir -p /root/.config/godot
+          cat > /root/.config/godot/editor_settings-4.5.tres << 'EOF'
+          [gd_resource type="EditorSettings" format=3]
+          [resource]
+          export/android/java_sdk_path = "/usr/lib/jvm/java-17-openjdk-amd64"
+          export/android/android_sdk_path = "/usr/lib/android-sdk"
+          export/android/debug_keystore = "/root/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          export/android/force_system_user = false
+          export/android/timestamping_authority_url = ""
+          export/android/shutdown_adb_on_exit = true
+          EOF
       
       - name: Import project
         run: |
