@@ -1,5 +1,14 @@
 # VRig (Godot 4.5 Edition)
 
+> ## ⚠️ IMPORTANT: Unity Version Deprecated
+> 
+> **The Unity version is NO LONGER SUPPORTED.**
+> 
+> If you're experiencing Unity issues (model can't move, settings won't open, camera not loading), 
+> please **switch to the Godot version immediately**.
+> 
+> See [UNITY_DEPRECATED.md](./UNITY_DEPRECATED.md) for migration instructions.
+
 > **🚀 This project has been migrated from Unity to Godot 4.5!**
 > 
 > For the Godot-specific documentation, see [README_GODOT.md](./README_GODOT.md)
@@ -60,3 +69,24 @@ The original Unity version used:
 See [BUILD_GODOT.md](./BUILD_GODOT.md) for Godot build instructions.
 
 For historical Unity build info, see [BUILD.md](./BUILD.md)
+
+## Troubleshooting Unity Issues
+
+**If you're running the old Unity build and experiencing issues:**
+
+Common Unity problems (unfixed):
+- ❌ Model can't be moved
+- ❌ Settings can't be opened
+- ❌ Camera not loading
+- ❌ Tracking unstable
+- ❌ High CPU/memory usage
+
+**Solution: Switch to Godot version**
+
+See [UNITY_DEPRECATED.md](./UNITY_DEPRECATED.md) for:
+- Why Unity is deprecated
+- How to migrate to Godot
+- Download links for Godot builds
+- Settings migration guide
+
+The Godot version fixes all these issues and provides better performance.
