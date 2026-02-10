@@ -48,9 +48,6 @@ bld/
 *.aab
 *.app
 
-# Android build template
-android/build/
-
 # Temp
 .curl/
 .version
