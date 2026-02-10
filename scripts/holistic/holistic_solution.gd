@@ -40,6 +40,10 @@ const HOLISTIC_MODEL_PATHS = [
 	"res://models/holistic_landmarker.task"
 ]
 
+# Camera feed discovery wait time in seconds
+# Some platforms need a brief delay for the camera system to discover available feeds
+const CAMERA_DISCOVERY_WAIT_TIME = 0.5
+
 func get_model_path() -> String:
 	"""Find the holistic model file in various locations"""
 	for path in HOLISTIC_MODEL_PATHS:
@@ -155,7 +159,7 @@ func setup_camera() -> bool:
 		server.monitoring_feeds = true
 		
 		# Wait a moment for feeds to be discovered
-		await get_tree().create_timer(0.5).timeout
+		await get_tree().create_timer(CAMERA_DISCOVERY_WAIT_TIME).timeout
 		
 		# Check again after enabling monitoring
 		print("[HolisticSolution] Feed count after enabling monitoring: ", server.get_feed_count())
