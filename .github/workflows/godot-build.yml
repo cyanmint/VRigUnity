@@ -138,12 +138,19 @@ jobs:
         run: |
           mkdir -p android/build
           cd android/build
+          if [ ! -f "/root/.local/share/godot/export_templates/4.5.stable/android_source.zip" ]; then
+            echo "ERROR: Android source template not found!"
+            exit 1
+          fi
           unzip -q /root/.local/share/godot/export_templates/4.5.stable/android_source.zip
           echo "4.5.stable" > .build_version
       
       - name: Import project
         run: |
-          godot --headless --editor --quit 2>&1 | tee import.log || true
+          godot --headless --editor --quit 2>&1 | tee import.log
+          if grep -q "SCRIPT ERROR.*Parse Error" import.log; then
+            echo "Warning: Script parse errors detected during import"
+          fi
       
       - name: Build Android
         run: |
