@@ -2,7 +2,7 @@ extends Node
 ## Settings manager for VRig
 ## Handles loading and saving user preferences
 
-class_name Settings
+# Note: Don't use class_name to avoid conflict with autoload singleton
 
 # Settings file path
 const SETTINGS_FILE = "user://settings.cfg"

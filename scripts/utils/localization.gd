@@ -2,7 +2,7 @@ extends Node
 ## Localization system for VRig
 ## Loads and manages language translations
 
-class_name Localization
+# Note: Don't use class_name to avoid conflict with autoload singleton
 
 # Translation data
 var translations := {}
@@ -86,7 +86,8 @@ func get_text(key: String, default: String = "") -> String:
 		return default
 	return key
 
-func tr(key: String, default: String = "") -> String:
+func translate(key: String, default: String = "") -> String:
+	## Get translated text (renamed from tr to avoid conflict with Object.tr)
 	return get_text(key, default)
 
 func set_language(lang_code: String) -> bool:

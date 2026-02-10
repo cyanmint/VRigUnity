@@ -2,7 +2,7 @@ extends Node
 ## VMC (Virtual Motion Capture) Protocol Implementation
 ## Sends and receives motion data using OSC protocol
 
-class_name VMCProtocol
+# Note: Don't use class_name to avoid potential conflicts
 
 # OSC client and server
 var osc_sender = null  # Will send VMC data
