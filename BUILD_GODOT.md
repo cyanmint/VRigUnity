@@ -90,6 +90,44 @@ mkdir -p addons/GDMP/models
 # Click "Export Project"
 ```
 
+### Android
+
+#### Prerequisites
+- Android SDK (Platform API 34 or later)
+- Android NDK
+- Java Development Kit (JDK) 17 or later
+
+#### Setup Android SDK
+1. Install Android Studio or download Android SDK command-line tools
+2. Install required SDK platforms and build tools:
+   - SDK Platform 34 (Android 14.0)
+   - Build Tools 34.0.0 or later
+   - NDK (Side by side)
+3. Configure Godot to use the Android SDK:
+   - Open Godot Editor
+   - Go to Editor → Editor Settings → Export → Android
+   - Set "Android SDK Path" to your SDK location
+   - Set "Debug Keystore" path (or use default)
+
+#### Export for Android
+```bash
+# In Godot Editor:
+# Project → Export → Add → Android
+# Configure export settings:
+#   - Min SDK: 24 (Android 7.0)
+#   - Target SDK: 34 (Android 14.0)
+#   - Architectures: arm64-v8a (recommended)
+#   - Permissions: Camera, Record Audio, Internet
+# Click "Export Project" and save as .apk
+```
+
+#### Install on Device
+```bash
+# Enable USB debugging on your Android device
+# Connect device via USB
+adb install build/android/VRig.apk
+```
+
 ## Troubleshooting
 
 ### Addon not found errors
