@@ -22,6 +22,12 @@ window/size/viewport_width=1280
 window/size/viewport_height=720
 window/size/resizable=true
 
+[autoload]
+
+Settings="*res://scripts/utils/settings.gd"
+Localization="*res://scripts/utils/localization.gd"
+VMC="*res://scripts/utils/vmc_protocol.gd"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

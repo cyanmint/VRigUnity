@@ -1,4 +1,11 @@
-# VRigUnity
+# VRig (Godot 4.5 Edition)
+
+> **🚀 This project has been migrated from Unity to Godot 4.5!**
+> 
+> For the Godot-specific documentation, see [README_GODOT.md](./README_GODOT.md)
+> 
+> For migration details, see [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md)
+
 A virtual character animator. This app uses your webcam and an AI to move a `VRM` model.
 
 This app can be used in combination with other tools like *VSeeFace* and *VRM Posing Desktop*
@@ -25,12 +32,23 @@ Features:
 ## Translations
 It is allowed to make PR's for language translations of this app.
 
-Here is a small guide on how to add translations: [Translation Guide](./Assets/StreamingAssets/lang/README.md)
+Here is a small guide on how to add translations: [Translation Guide](./assets/lang/README.md)
 
 ## Translation Credits
 
 
-## Dependencies
+## Dependencies (Godot 4.5)
+
+**This is now a Godot project. The Unity dependencies listed below are for reference only.**
+
+### Current Godot Dependencies
++ [godot-vrm](https://github.com/V-Sekai/godot-vrm) - VRM model support for Godot
++ [GDMP v0.6](https://github.com/j20001970/GDMP/releases/tag/v0.6) - MediaPipe for Godot
++ Godot's built-in FileDialog (replaces StandaloneFileBrowser and SimpleFileBrowser)
++ VMC Protocol implementation (custom, replaces EVMC4U)
+
+### Legacy Unity Dependencies (Reference)
+The original Unity version used:
 + [MediaPipeUnityPlugin v0.10.1](https://github.com/homuler/MediaPipeUnityPlugin)
 + [UniVRM v0.107.0](https://github.com/vrm-c/UniVRM)
 + [StandaloneFileBrowser v1.2](https://github.com/gkngkc/UnityStandaloneFileBrowser)
@@ -39,4 +57,6 @@ Here is a small guide on how to add translations: [Translation Guide](./Assets/S
 + [EasyVirtualMotionCaptureForUnity v3_9c](https://github.com/gpsnmeajp/EasyVirtualMotionCaptureForUnity)
 
 ## Building
-See [BUILD.md](./BUILD.md)
+See [BUILD_GODOT.md](./BUILD_GODOT.md) for Godot build instructions.
+
+For historical Unity build info, see [BUILD.md](./BUILD.md)
