@@ -58,32 +58,51 @@ func get_model_path() -> String:
 	return ""
 
 func _ready():
+	# Always print to console first to verify this function runs
+	print("[HolisticSolution] _ready() called")
+	
+	# Wait for autoloads to be ready
+	await get_tree().process_frame
+	
 	if DebugLogger:
 		DebugLogger.log_info("HolisticSolution", "Initializing Holistic Solution...")
+	else:
+		print("[HolisticSolution] WARNING: DebugLogger not available")
 	
 	# Check if GDMP classes are available
 	gdmp_available = ClassDB.class_exists("MediaPipeTaskRunner")
 	if gdmp_available:
 		if DebugLogger:
 			DebugLogger.log_info("HolisticSolution", "GDMP extension loaded successfully")
-		setup_mediapipe()
+		else:
+			print("[HolisticSolution] GDMP extension loaded")
+		await setup_mediapipe()
 	else:
 		if DebugLogger:
 			DebugLogger.log_warning("HolisticSolution", "GDMP extension not available - MediaPipe tracking disabled")
 			DebugLogger.log_warning("HolisticSolution", "This is expected in headless mode or when GDMP native libraries are missing")
+		else:
+			print("[HolisticSolution] WARNING: GDMP not available")
 		push_warning("GDMP not available - tracking disabled")
 
 func setup_mediapipe():
+	print("[HolisticSolution] setup_mediapipe() called")
+	
 	if not gdmp_available:
+		print("[HolisticSolution] GDMP not available, returning")
 		return
 	
+	print("[HolisticSolution] Setting up MediaPipe...")
 	if DebugLogger:
 		DebugLogger.log_info("HolisticSolution", "Setting up MediaPipe Holistic tracking...")
 	
 	# Check if model file exists
 	var model_path = get_model_path()
+	print("[HolisticSolution] Model path result: ", model_path)
+	
 	if model_path == "":
 		var warning_msg = "Holistic model file not found in any of these locations:"
+		print("[HolisticSolution] WARNING: ", warning_msg)
 		if DebugLogger:
 			DebugLogger.log_warning("HolisticSolution", warning_msg)
 			for path in HOLISTIC_MODEL_PATHS:
@@ -95,43 +114,59 @@ func setup_mediapipe():
 		# Don't return - still try to initialize camera for preview
 	
 	# Initialize camera first
+	print("[HolisticSolution] Calling setup_camera()...")
 	var camera_ok = await setup_camera()
+	print("[HolisticSolution] Camera setup result: ", camera_ok)
+	
 	if not camera_ok:
+		print("[HolisticSolution] ERROR: Camera initialization failed")
 		if DebugLogger:
 			DebugLogger.log_error("HolisticSolution", "Failed to initialize camera")
 		return
 	
 	# Create holistic tracking graph if model is available
 	if model_path != "":
+		print("[HolisticSolution] Creating holistic graph...")
 		create_holistic_graph(model_path)
 	else:
+		print("[HolisticSolution] Skipping graph creation - no model")
 		if DebugLogger:
 			DebugLogger.log_warning("HolisticSolution", "Skipping MediaPipe graph creation - model file not found")
 
 func setup_camera() -> bool:
+	print("[HolisticSolution] setup_camera() called")
+	
 	if DebugLogger:
 		DebugLogger.log_debug("HolisticSolution", "Setting up webcam...")
 	
 	# Get camera server
 	var server = CameraServer
+	print("[HolisticSolution] CameraServer instance: ", server)
+	print("[HolisticSolution] Initial feed count: ", server.get_feed_count())
 	
 	# On some platforms (especially Windows), cameras need to be added manually
 	# Try to add cameras if none are present
 	if server.get_feed_count() == 0:
+		print("[HolisticSolution] No feeds detected, trying to add...")
 		if DebugLogger:
 			DebugLogger.log_debug("HolisticSolution", "No camera feeds detected, attempting to add default cameras...")
 		
 		# Try to add cameras by index (0-9)
 		for i in range(10):
 			var feed_name = "Camera " + str(i)
+			print("[HolisticSolution] Attempting to add feed: ", feed_name)
 			var feed = server.add_feed(feed_name, CameraServer.FEED_RGBA_IMAGE, Transform2D())
+			print("[HolisticSolution] Add feed result: ", feed)
 			if feed:
 				if DebugLogger:
 					DebugLogger.log_info("HolisticSolution", "Added camera feed: " + feed_name)
+				print("[HolisticSolution] Successfully added: ", feed_name)
 				break  # Successfully added at least one feed
 		
 		# Check again after trying to add
+		print("[HolisticSolution] Feed count after adding: ", server.get_feed_count())
 		if server.get_feed_count() == 0:
+			print("[HolisticSolution] ERROR: Still no camera feeds available")
 			if DebugLogger:
 				DebugLogger.log_error("HolisticSolution", "No camera feeds available even after attempting to add")
 				DebugLogger.log_error("HolisticSolution", "Please ensure a webcam is connected and accessible")
@@ -139,29 +174,41 @@ func setup_camera() -> bool:
 			return false
 	
 	# Get the first available feed
+	print("[HolisticSolution] Getting feed 0...")
 	camera_feed = server.get_feed(0)
+	print("[HolisticSolution] Camera feed: ", camera_feed)
+	
 	if not camera_feed:
+		print("[HolisticSolution] ERROR: Failed to get camera feed 0")
 		if DebugLogger:
 			DebugLogger.log_error("HolisticSolution", "Failed to get camera feed 0")
 		push_error("Failed to get camera feed")
 		return false
 	
+	print("[HolisticSolution] Using camera feed: ", camera_feed.get_name())
 	if DebugLogger:
 		DebugLogger.log_info("HolisticSolution", "Using camera feed: " + camera_feed.get_name())
 	
 	# Create camera texture
+	print("[HolisticSolution] Creating CameraTexture...")
 	camera_texture = CameraTexture.new()
 	camera_texture.camera_feed_id = camera_feed.get_id()
 	camera_texture.camera_is_active = true
+	print("[HolisticSolution] Camera texture created")
 	
 	# Activate the feed
 	if not camera_feed.is_active():
+		print("[HolisticSolution] Activating camera feed...")
 		camera_feed.set_active(true)
 		if DebugLogger:
 			DebugLogger.log_debug("HolisticSolution", "Activated camera feed")
+	else:
+		print("[HolisticSolution] Camera feed already active")
 	
 	# Wait a moment for camera to initialize
+	print("[HolisticSolution] Waiting for camera to initialize...")
 	await get_tree().create_timer(0.5).timeout
+	print("[HolisticSolution] Camera initialization complete")
 	
 	if DebugLogger:
 		DebugLogger.log_info("HolisticSolution", "Camera initialized successfully: " + camera_feed.get_name())
