@@ -2,7 +2,7 @@ name: Android Build
 
 on:
   push:
-    branches: [ main, master, copilot/add-ci-workflow-for-android ]
+    branches: [ main, master, copilot/add-ci-workflow-for-android, copilot/resolve-building-errors-android ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
