@@ -21,8 +21,11 @@ var track_face := true
 var track_left_hand := true
 var track_right_hand := true
 
+# GDMP availability check
+var gdmp_available := false
+
 # GDMP/MediaPipe variables
-var task_runner: MediaPipeTaskRunner = null
+var task_runner = null  # MediaPipeTaskRunner when GDMP is available
 var camera_texture: CameraTexture = null
 var camera_feed: CameraFeed = null
 var is_tracking := false
@@ -34,9 +37,23 @@ const HOLISTIC_MODEL_PATH = "res://addons/GDMP/models/holistic_landmarker.task"
 func _ready():
 	if DebugLogger:
 		DebugLogger.log_info("HolisticSolution", "Initializing Holistic Solution...")
-	setup_mediapipe()
+	
+	# Check if GDMP classes are available
+	gdmp_available = ClassDB.class_exists("MediaPipeTaskRunner")
+	if gdmp_available:
+		if DebugLogger:
+			DebugLogger.log_info("HolisticSolution", "GDMP extension loaded successfully")
+		setup_mediapipe()
+	else:
+		if DebugLogger:
+			DebugLogger.log_warning("HolisticSolution", "GDMP extension not available - MediaPipe tracking disabled")
+			DebugLogger.log_warning("HolisticSolution", "This is expected in headless mode or when GDMP native libraries are missing")
+		push_warning("GDMP not available - tracking disabled")
 
 func setup_mediapipe():
+	if not gdmp_available:
+		return
+	
 	if DebugLogger:
 		DebugLogger.log_info("HolisticSolution", "Setting up MediaPipe Holistic tracking...")
 	
@@ -92,6 +109,11 @@ func setup_camera() -> bool:
 	return true
 
 func create_holistic_graph():
+	if not gdmp_available:
+		if DebugLogger:
+			DebugLogger.log_warning("HolisticSolution", "Cannot create graph: GDMP not available")
+		return
+	
 	if DebugLogger:
 		DebugLogger.log_debug("HolisticSolution", "Creating Holistic graph...")
 	
@@ -120,11 +142,13 @@ func create_holistic_graph():
 	var package_name = "mediapipe.tasks.vision.holistic_landmarker"
 	
 	# Initialize options
+	var MediaPipeProto = ClassDB.instantiate("MediaPipeProto")
 	var options = MediaPipeProto.new()
 	options.initialize(package_name + ".proto.HolisticLandmarkerGraphOptions")
 	options.set_field("base_options/model_asset/file_content", file_buffer)
 	
 	# Build graph
+	var MediaPipeGraphBuilder = ClassDB.instantiate("MediaPipeGraphBuilder")
 	var builder = MediaPipeGraphBuilder.new()
 	var node = builder.add_node(package_name + ".HolisticLandmarkerGraph")
 	node.set_options(options)
@@ -141,6 +165,7 @@ func create_holistic_graph():
 	
 	# Get config and initialize task runner
 	var config = builder.get_config()
+	var MediaPipeTaskRunner = ClassDB.instantiate("MediaPipeTaskRunner")
 	task_runner = MediaPipeTaskRunner.new()
 	
 	# Connect callback for async processing
@@ -153,6 +178,11 @@ func create_holistic_graph():
 		DebugLogger.log_info("HolisticSolution", "Holistic graph created successfully")
 
 func start_tracking():
+	if not gdmp_available:
+		if DebugLogger:
+			DebugLogger.log_warning("HolisticSolution", "Cannot start tracking: GDMP not available")
+		return
+	
 	if not task_runner:
 		var err_msg = "Cannot start tracking: MediaPipe graph not initialized"
 		if DebugLogger:
@@ -180,7 +210,7 @@ func stop_tracking():
 	emit_signal("tracking_stopped")
 
 func _process(_delta):
-	if not is_tracking or not task_runner or not camera_texture:
+	if not gdmp_available or not is_tracking or not task_runner or not camera_texture:
 		return
 	
 	# Get image from camera
@@ -189,6 +219,7 @@ func _process(_delta):
 		return
 	
 	# Create MediaPipe image
+	var MediaPipeImage = ClassDB.instantiate("MediaPipeImage")
 	var mp_image = MediaPipeImage.new()
 	mp_image.set_image(image)
 	
@@ -228,7 +259,7 @@ func _on_packets_received(outputs: Dictionary):
 	# Emit signal with landmarks
 	emit_signal("landmarks_updated", landmarks)
 
-func extract_landmarks(packet: MediaPipePacket) -> Array:
+func extract_landmarks(packet) -> Array:  # Packet type when GDMP available
 	var result = []
 	
 	# Get the landmark list from packet
@@ -256,7 +287,7 @@ func extract_landmarks(packet: MediaPipePacket) -> Array:
 	
 	return result
 
-func extract_blendshapes(packet: MediaPipePacket) -> Array:
+func extract_blendshapes(packet) -> Array:  # Packet type when GDMP available
 	var result = []
 	
 	# Get classifications from packet
