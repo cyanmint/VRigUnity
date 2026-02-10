@@ -2,9 +2,9 @@ name: Build VRig Godot
 
 on:
   push:
-    branches: [ copilot/translate-unity-to-godot, main ]
+    branches: [ copilot/translate-unity-to-godot ]
   pull_request:
-    branches: [ copilot/translate-unity-to-godot, main ]
+    branches: [ copilot/translate-unity-to-godot ]
   workflow_dispatch:
 
 env:
