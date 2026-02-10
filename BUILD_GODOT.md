@@ -1,5 +1,14 @@
 # Building VRig for Godot 4.5
 
+## CI/CD Build
+
+The project uses GitHub Actions to automatically build for multiple platforms:
+
+- **Windows, macOS, Linux**: Built using `godot-build.yml` with Docker containers
+- **Android**: Built using `android-build.yml` with local Godot installation
+
+The Android build workflow downloads Godot 4.5-stable directly and sets up the Android SDK on the runner for a more reliable build process.
+
 ## Prerequisites
 
 - Godot 4.5-stable or later
@@ -112,16 +121,13 @@ mkdir -p addons/GDMP/models
 ```bash
 # In Godot Editor:
 # Project → Export → Select "Android" preset
-# The export uses Gradle build for better control:
-#   - Min SDK: 24 (Android 7.0)
-#   - Target SDK: 33 (Android 13.0)
+# The export uses APK templates (gradle build disabled):
 #   - Architectures: arm64-v8a (64-bit ARM, recommended for modern devices)
 #   - Permissions: Camera, Record Audio, Internet
-#   - Build directory: res://android/build
 # Click "Export Project" and save as .apk
 ```
 
-Note: The Android export preset uses Gradle builds with the build template located at `android/build/`.
+Note: The Android export preset uses pre-built APK templates for faster builds. Gradle build is disabled.
 
 #### Install on Device
 ```bash
@@ -129,6 +135,29 @@ Note: The Android export preset uses Gradle builds with the build template locat
 # Connect device via USB
 adb install build/android/VRig.apk
 ```
+
+## CI/CD Android Build
+
+The Android build is automated via GitHub Actions in `.github/workflows/android-build.yml`. This workflow:
+
+1. **Sets up the environment**:
+   - Installs Java 17
+   - Sets up Android SDK with platform-tools, platforms;android-33, and build-tools;33.0.2
+   
+2. **Installs Godot**:
+   - Downloads Godot 4.5-stable Linux binary from GitHub releases
+   - Downloads and extracts export templates
+   
+3. **Configures Android settings**:
+   - Creates editor settings with Android SDK and Java paths
+   - Generates a debug keystore for signing
+   
+4. **Builds the APK**:
+   - Imports the project
+   - Exports to Android using the configured preset
+   - Uploads the APK as a build artifact
+
+The workflow runs on every push to main/master branches and can be triggered manually via workflow_dispatch.
 
 ## Troubleshooting
 
