@@ -2,7 +2,7 @@ name: Android Build
 
 on:
   push:
-    branches: [ main, master, copilot/add-ci-workflow-for-android ]
+    branches: [ main, master, copilot/add-ci-workflow-for-android, copilot/resolve-building-errors-android ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
@@ -37,6 +37,11 @@ jobs:
       - name: Install Android SDK packages
         run: |
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+      
+      - name: Install system dependencies for GDMP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgles2 libgles2-mesa-dev
       
       - name: Download and setup Godot
         run: |
