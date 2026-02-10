@@ -27,6 +27,7 @@ window/size/resizable=true
 Settings="*res://scripts/utils/settings.gd"
 Localization="*res://scripts/utils/localization.gd"
 VMC="*res://scripts/utils/vmc_protocol.gd"
+DebugLogger="*res://scripts/utils/debug_logger.gd"
 
 [rendering]
 

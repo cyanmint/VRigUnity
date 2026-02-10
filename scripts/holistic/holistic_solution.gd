@@ -32,40 +32,51 @@ var timestamp_ms := 0
 const HOLISTIC_MODEL_PATH = "res://addons/GDMP/models/holistic_landmarker.task"
 
 func _ready():
-	print("Initializing Holistic Solution...")
+	if DebugLogger:
+		DebugLogger.log_info("HolisticSolution", "Initializing Holistic Solution...")
 	setup_mediapipe()
 
 func setup_mediapipe():
-	print("Setting up MediaPipe Holistic tracking...")
+	if DebugLogger:
+		DebugLogger.log_info("HolisticSolution", "Setting up MediaPipe Holistic tracking...")
 	
 	# Check if model file exists (user needs to download separately)
 	if not FileAccess.file_exists(HOLISTIC_MODEL_PATH):
-		push_warning("Holistic model file not found at: " + HOLISTIC_MODEL_PATH)
-		push_warning("Please download the holistic_landmarker.task model from MediaPipe")
+		var warning_msg = "Holistic model file not found at: " + HOLISTIC_MODEL_PATH
+		if DebugLogger:
+			DebugLogger.log_warning("HolisticSolution", warning_msg)
+			DebugLogger.log_warning("HolisticSolution", "Please download the holistic_landmarker.task model from MediaPipe")
+		push_warning(warning_msg)
 		# Continue anyway - will fail gracefully when trying to initialize
 	
 	# Initialize camera first
 	if not setup_camera():
-		push_error("Failed to initialize camera")
+		if DebugLogger:
+			DebugLogger.log_error("HolisticSolution", "Failed to initialize camera")
 		return
 	
 	# Create holistic tracking graph
 	create_holistic_graph()
 
 func setup_camera() -> bool:
-	print("Setting up webcam...")
+	if DebugLogger:
+		DebugLogger.log_debug("HolisticSolution", "Setting up webcam...")
 	
 	# Get camera server
 	var server = CameraServer
 	
 	# Check if we have any feeds
 	if server.get_feed_count() == 0:
+		if DebugLogger:
+			DebugLogger.log_error("HolisticSolution", "No camera feeds available")
 		push_error("No camera feeds available")
 		return false
 	
 	# Get the first available feed
 	camera_feed = server.get_feed(0)
 	if not camera_feed:
+		if DebugLogger:
+			DebugLogger.log_error("HolisticSolution", "Failed to get camera feed")
 		push_error("Failed to get camera feed")
 		return false
 	
@@ -76,25 +87,34 @@ func setup_camera() -> bool:
 	# Start the feed
 	camera_feed.set_active(true)
 	
-	print("Camera initialized: ", camera_feed.get_name())
+	if DebugLogger:
+		DebugLogger.log_info("HolisticSolution", "Camera initialized: " + camera_feed.get_name())
 	return true
 
 func create_holistic_graph():
-	print("Creating Holistic graph...")
+	if DebugLogger:
+		DebugLogger.log_debug("HolisticSolution", "Creating Holistic graph...")
 	
 	# Check if model exists
 	if not FileAccess.file_exists(HOLISTIC_MODEL_PATH):
+		if DebugLogger:
+			DebugLogger.log_error("HolisticSolution", "Cannot create graph: model file not found at " + HOLISTIC_MODEL_PATH)
 		push_error("Cannot create graph: model file not found")
 		return
 	
 	# Load model file
 	var file = FileAccess.open(HOLISTIC_MODEL_PATH, FileAccess.READ)
 	if not file:
+		if DebugLogger:
+			DebugLogger.log_error("HolisticSolution", "Failed to open model file: " + HOLISTIC_MODEL_PATH)
 		push_error("Failed to open model file")
 		return
 	
 	var file_buffer = file.get_buffer(file.get_length())
 	file.close()
+	
+	if DebugLogger:
+		DebugLogger.log_debug("HolisticSolution", "Model file loaded, size: " + str(file_buffer.size()) + " bytes")
 	
 	# Create MediaPipe graph using GDMP
 	var package_name = "mediapipe.tasks.vision.holistic_landmarker"
@@ -129,24 +149,33 @@ func create_holistic_graph():
 	# Initialize as async (live stream mode)
 	task_runner.initialize(config, true)
 	
-	print("Holistic graph created successfully")
+	if DebugLogger:
+		DebugLogger.log_info("HolisticSolution", "Holistic graph created successfully")
 
 func start_tracking():
 	if not task_runner:
-		push_error("Cannot start tracking: MediaPipe graph not initialized")
+		var err_msg = "Cannot start tracking: MediaPipe graph not initialized"
+		if DebugLogger:
+			DebugLogger.log_error("HolisticSolution", err_msg)
+		push_error(err_msg)
 		return
 	
 	if not camera_feed or not camera_feed.is_active():
-		push_error("Cannot start tracking: Camera not active")
+		var err_msg = "Cannot start tracking: Camera not active"
+		if DebugLogger:
+			DebugLogger.log_error("HolisticSolution", err_msg)
+		push_error(err_msg)
 		return
 	
-	print("Starting holistic tracking...")
+	if DebugLogger:
+		DebugLogger.log_info("HolisticSolution", "Starting holistic tracking...")
 	is_tracking = true
 	timestamp_ms = 0
 	emit_signal("tracking_started")
 
 func stop_tracking():
-	print("Stopping holistic tracking...")
+	if DebugLogger:
+		DebugLogger.log_info("HolisticSolution", "Stopping holistic tracking...")
 	is_tracking = false
 	emit_signal("tracking_stopped")
 
