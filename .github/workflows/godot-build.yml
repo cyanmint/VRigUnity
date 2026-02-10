@@ -10,6 +10,9 @@ on:
 env:
   GODOT_VERSION: 4.5-stable
 
+permissions:
+  contents: read
+
 jobs:
   export-linux:
     name: Linux Export
