@@ -10,6 +10,9 @@ on:
 env:
   GODOT_VERSION: 4.5-stable
 
+permissions:
+  contents: read
+
 jobs:
   export-linux:
     name: Linux Export
@@ -112,3 +115,7 @@ jobs:
           name: VRig-macOS
           path: build/macos
           retention-days: 14
+  
+  # export-android job has been moved to android-build.yml
+  # This provides a cleaner separation and uses local Godot installation
+  # instead of Docker for better reliability

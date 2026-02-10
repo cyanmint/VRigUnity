@@ -1,5 +1,14 @@
 # Building VRig for Godot 4.5
 
+## CI/CD Build
+
+The project uses GitHub Actions to automatically build for multiple platforms:
+
+- **Windows, macOS, Linux**: Built using `godot-build.yml` with Docker containers
+- **Android**: Built using `android-build.yml` with local Godot installation
+
+The Android build workflow downloads Godot 4.5-stable directly and sets up the Android SDK on the runner for a more reliable build process.
+
 ## Prerequisites
 
 - Godot 4.5-stable or later
@@ -89,6 +98,66 @@ mkdir -p addons/GDMP/models
 # Configure export settings
 # Click "Export Project"
 ```
+
+### Android
+
+#### Prerequisites
+- Android SDK (Platform API 33 or later)
+- Java Development Kit (JDK) 17 or later
+
+#### Setup Android SDK
+1. Install Android Studio or download Android SDK command-line tools
+2. Install required SDK platforms and build tools:
+   - SDK Platform 33 (Android 13.0) or later
+   - Build Tools 33.0.2 or later
+3. Configure Godot to use the Android SDK:
+   - Open Godot Editor
+   - Go to Editor → Editor Settings → Export → Android
+   - Set "Android SDK Path" to your SDK location
+   - Set "Java SDK Path" to your JDK 17 installation
+   - Set "Debug Keystore" path (or use default)
+
+#### Export for Android
+```bash
+# In Godot Editor:
+# Project → Export → Select "Android" preset
+# The export uses APK templates (gradle build disabled):
+#   - Architectures: arm64-v8a (64-bit ARM, recommended for modern devices)
+#   - Permissions: Camera, Record Audio, Internet
+# Click "Export Project" and save as .apk
+```
+
+Note: The Android export preset uses pre-built APK templates for faster builds. Gradle build is disabled.
+
+#### Install on Device
+```bash
+# Enable USB debugging on your Android device
+# Connect device via USB
+adb install build/android/VRig.apk
+```
+
+## CI/CD Android Build
+
+The Android build is automated via GitHub Actions in `.github/workflows/android-build.yml`. This workflow:
+
+1. **Sets up the environment**:
+   - Installs Java 17
+   - Sets up Android SDK with platform-tools, platforms;android-33, and build-tools;33.0.2
+   
+2. **Installs Godot**:
+   - Downloads Godot 4.5-stable Linux binary from GitHub releases
+   - Downloads and extracts export templates
+   
+3. **Configures Android settings**:
+   - Creates editor settings with Android SDK and Java paths
+   - Generates a debug keystore for signing
+   
+4. **Builds the APK**:
+   - Imports the project
+   - Exports to Android using the configured preset
+   - Uploads the APK as a build artifact
+
+The workflow runs on every push to main/master branches and can be triggered manually via workflow_dispatch.
 
 ## Troubleshooting
 
