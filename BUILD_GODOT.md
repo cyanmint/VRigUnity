@@ -112,13 +112,16 @@ mkdir -p addons/GDMP/models
 ```bash
 # In Godot Editor:
 # Project → Export → Select "Android" preset
-# The export uses pre-built APK templates (Gradle build is disabled for simplicity)
+# The export uses Gradle build for better control:
+#   - Min SDK: 24 (Android 7.0)
+#   - Target SDK: 33 (Android 13.0)
 #   - Architectures: arm64-v8a (64-bit ARM, recommended for modern devices)
 #   - Permissions: Camera, Record Audio, Internet
+#   - Build directory: res://android/build
 # Click "Export Project" and save as .apk
 ```
 
-Note: The Android export preset is configured to use pre-built APK templates rather than Gradle builds for faster CI builds and simpler configuration.
+Note: The Android export preset uses Gradle builds with the build template located at `android/build/`.
 
 #### Install on Device
 ```bash
