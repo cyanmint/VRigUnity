@@ -160,7 +160,7 @@ jobs:
       - name: Build Android
         run: |
           mkdir -v -p build/android
-          godot --headless --install-android-build-template --export-release "Android" build/android/VRig.apk 2>&1 | tee build.log
+          godot --headless --export-release "Android" build/android/VRig.apk 2>&1 | tee build.log
       
       - name: Upload Android build
         uses: actions/upload-artifact@v4
