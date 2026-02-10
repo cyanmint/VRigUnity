@@ -25,7 +25,9 @@ jobs:
       - name: Setup export templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
-          mv /root/.local/share/godot/export_templates/${GODOT_VERSION} ~/.local/share/godot/export_templates/${GODOT_VERSION}
+          if [ -d "/root/.local/share/godot/export_templates/4.5.stable" ]; then
+            cp -r /root/.local/share/godot/export_templates/4.5.stable ~/.local/share/godot/export_templates/4.5.stable
+          fi
       
       - name: Import project (to generate .godot folder)
         run: |
@@ -57,7 +59,9 @@ jobs:
       - name: Setup export templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
-          mv /root/.local/share/godot/export_templates/${GODOT_VERSION} ~/.local/share/godot/export_templates/${GODOT_VERSION}
+          if [ -d "/root/.local/share/godot/export_templates/4.5.stable" ]; then
+            cp -r /root/.local/share/godot/export_templates/4.5.stable ~/.local/share/godot/export_templates/4.5.stable
+          fi
       
       - name: Import project
         run: |
@@ -89,7 +93,9 @@ jobs:
       - name: Setup export templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
-          mv /root/.local/share/godot/export_templates/${GODOT_VERSION} ~/.local/share/godot/export_templates/${GODOT_VERSION}
+          if [ -d "/root/.local/share/godot/export_templates/4.5.stable" ]; then
+            cp -r /root/.local/share/godot/export_templates/4.5.stable ~/.local/share/godot/export_templates/4.5.stable
+          fi
       
       - name: Import project
         run: |
