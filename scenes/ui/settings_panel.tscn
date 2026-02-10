@@ -1,0 +1,137 @@
+[gd_scene load_steps=2 format=3 uid="uid://ck4h3xr2p1qvf"]
+
+[ext_resource type="Script" path="res://scripts/ui/settings_panel.gd" id="1_settings"]
+
+[node name="SettingsPanel" type="Panel"]
+offset_right = 600.0
+offset_bottom = 500.0
+script = ExtResource("1_settings")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SettingsContent" type="VBoxContainer" parent="VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DisplaySettings" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/SettingsContent"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/ScrollContainer/SettingsContent/DisplaySettings"]
+layout_mode = 2
+text = "Display Settings"
+
+[node name="ShowModelCheck" type="CheckBox" parent="VBoxContainer/ScrollContainer/SettingsContent/DisplaySettings"]
+layout_mode = 2
+text = "Show Model"
+
+[node name="ShowWebcamCheck" type="CheckBox" parent="VBoxContainer/ScrollContainer/SettingsContent/DisplaySettings"]
+layout_mode = 2
+text = "Show Webcam Preview"
+
+[node name="HSeparator2" type="HSeparator" parent="VBoxContainer/ScrollContainer/SettingsContent"]
+layout_mode = 2
+
+[node name="TrackingSettings" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/SettingsContent"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/ScrollContainer/SettingsContent/TrackingSettings"]
+layout_mode = 2
+text = "Tracking Settings"
+
+[node name="TrackFaceCheck" type="CheckBox" parent="VBoxContainer/ScrollContainer/SettingsContent/TrackingSettings"]
+layout_mode = 2
+text = "Track Face"
+
+[node name="TrackPoseCheck" type="CheckBox" parent="VBoxContainer/ScrollContainer/SettingsContent/TrackingSettings"]
+layout_mode = 2
+text = "Track Pose"
+
+[node name="TrackHandsCheck" type="CheckBox" parent="VBoxContainer/ScrollContainer/SettingsContent/TrackingSettings"]
+layout_mode = 2
+text = "Track Hands"
+
+[node name="HSeparator3" type="HSeparator" parent="VBoxContainer/ScrollContainer/SettingsContent"]
+layout_mode = 2
+
+[node name="VMCSettings" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/SettingsContent"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/ScrollContainer/SettingsContent/VMCSettings"]
+layout_mode = 2
+text = "VMC Protocol Settings"
+
+[node name="VMCEnabledCheck" type="CheckBox" parent="VBoxContainer/ScrollContainer/SettingsContent/VMCSettings"]
+layout_mode = 2
+text = "Enable VMC"
+
+[node name="PortLabel" type="Label" parent="VBoxContainer/ScrollContainer/SettingsContent/VMCSettings"]
+layout_mode = 2
+text = "Send Port:"
+
+[node name="VMCPortSpin" type="SpinBox" parent="VBoxContainer/ScrollContainer/SettingsContent/VMCSettings"]
+layout_mode = 2
+min_value = 1024.0
+max_value = 65535.0
+value = 39539.0
+
+[node name="ReceivePortLabel" type="Label" parent="VBoxContainer/ScrollContainer/SettingsContent/VMCSettings"]
+layout_mode = 2
+text = "Receive Port:"
+
+[node name="VMCReceivePortSpin" type="SpinBox" parent="VBoxContainer/ScrollContainer/SettingsContent/VMCSettings"]
+layout_mode = 2
+min_value = 1024.0
+max_value = 65535.0
+value = 39540.0
+
+[node name="HSeparator4" type="HSeparator" parent="VBoxContainer/ScrollContainer/SettingsContent"]
+layout_mode = 2
+
+[node name="LanguageSettings" type="VBoxContainer" parent="VBoxContainer/ScrollContainer/SettingsContent"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/ScrollContainer/SettingsContent/LanguageSettings"]
+layout_mode = 2
+text = "Language"
+
+[node name="LanguageOption" type="OptionButton" parent="VBoxContainer/ScrollContainer/SettingsContent/LanguageSettings"]
+layout_mode = 2
+
+[node name="HSeparator5" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="SaveButton" type="Button" parent="VBoxContainer/ButtonsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Save"
+
+[node name="CancelButton" type="Button" parent="VBoxContainer/ButtonsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Cancel"
+
+[node name="ResetButton" type="Button" parent="VBoxContainer/ButtonsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Reset to Defaults"

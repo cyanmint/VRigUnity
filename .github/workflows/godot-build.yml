@@ -1,0 +1,121 @@
+name: Build VRig Godot
+
+on:
+  push:
+    branches: [ copilot/translate-unity-to-godot ]
+  pull_request:
+    branches: [ copilot/translate-unity-to-godot ]
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: 4.5-stable
+
+permissions:
+  contents: read
+
+jobs:
+  export-linux:
+    name: Linux Export
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      
+      - name: Setup export templates
+        run: |
+          mkdir -v -p ~/.local/share/godot/export_templates
+          if [ -d "/root/.local/share/godot/export_templates/4.5.stable" ]; then
+            cp -r /root/.local/share/godot/export_templates/4.5.stable ~/.local/share/godot/export_templates/4.5.stable
+          fi
+      
+      - name: Import project (to generate .godot folder)
+        run: |
+          godot --headless --editor --quit 2>&1 | tee import.log || true
+      
+      - name: Build Linux
+        run: |
+          mkdir -v -p build/linux
+          godot --headless --export-release "Linux/X11" build/linux/VRig.x86_64 2>&1 | tee build.log
+      
+      - name: Upload Linux build
+        uses: actions/upload-artifact@v4
+        with:
+          name: VRig-Linux
+          path: build/linux
+          retention-days: 14
+  
+  export-windows:
+    name: Windows Export  
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      
+      - name: Setup export templates
+        run: |
+          mkdir -v -p ~/.local/share/godot/export_templates
+          if [ -d "/root/.local/share/godot/export_templates/4.5.stable" ]; then
+            cp -r /root/.local/share/godot/export_templates/4.5.stable ~/.local/share/godot/export_templates/4.5.stable
+          fi
+      
+      - name: Import project
+        run: |
+          godot --headless --editor --quit 2>&1 | tee import.log || true
+      
+      - name: Build Windows
+        run: |
+          mkdir -v -p build/windows
+          godot --headless --export-release "Windows Desktop" build/windows/VRig.exe 2>&1 | tee build.log
+      
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: VRig-Windows
+          path: build/windows
+          retention-days: 14
+  
+  export-macos:
+    name: macOS Export
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      
+      - name: Setup export templates
+        run: |
+          mkdir -v -p ~/.local/share/godot/export_templates
+          if [ -d "/root/.local/share/godot/export_templates/4.5.stable" ]; then
+            cp -r /root/.local/share/godot/export_templates/4.5.stable ~/.local/share/godot/export_templates/4.5.stable
+          fi
+      
+      - name: Import project
+        run: |
+          godot --headless --editor --quit 2>&1 | tee import.log || true
+      
+      - name: Build macOS
+        run: |
+          mkdir -v -p build/macos
+          godot --headless --export-release "macOS" build/macos/VRig.zip 2>&1 | tee build.log
+      
+      - name: Upload macOS build
+        uses: actions/upload-artifact@v4
+        with:
+          name: VRig-macOS
+          path: build/macos
+          retention-days: 14
+  
+  # export-android job has been moved to android-build.yml
+  # This provides a cleaner separation and uses local Godot installation
+  # instead of Docker for better reliability
