@@ -93,33 +93,32 @@ mkdir -p addons/GDMP/models
 ### Android
 
 #### Prerequisites
-- Android SDK (Platform API 34 or later)
-- Android NDK
+- Android SDK (Platform API 33 or later)
 - Java Development Kit (JDK) 17 or later
 
 #### Setup Android SDK
 1. Install Android Studio or download Android SDK command-line tools
 2. Install required SDK platforms and build tools:
-   - SDK Platform 34 (Android 14.0)
-   - Build Tools 34.0.0 or later
-   - NDK (Side by side)
+   - SDK Platform 33 (Android 13.0) or later
+   - Build Tools 33.0.2 or later
 3. Configure Godot to use the Android SDK:
    - Open Godot Editor
    - Go to Editor → Editor Settings → Export → Android
    - Set "Android SDK Path" to your SDK location
+   - Set "Java SDK Path" to your JDK 17 installation
    - Set "Debug Keystore" path (or use default)
 
 #### Export for Android
 ```bash
 # In Godot Editor:
-# Project → Export → Add → Android
-# Configure export settings:
-#   - Min SDK: 24 (Android 7.0)
-#   - Target SDK: 34 (Android 14.0)
-#   - Architectures: arm64-v8a (recommended)
+# Project → Export → Select "Android" preset
+# The export uses pre-built APK templates (Gradle build is disabled for simplicity)
+#   - Architectures: arm64-v8a (64-bit ARM, recommended for modern devices)
 #   - Permissions: Camera, Record Audio, Internet
 # Click "Export Project" and save as .apk
 ```
+
+Note: The Android export preset is configured to use pre-built APK templates rather than Gradle builds for faster CI builds and simpler configuration.
 
 #### Install on Device
 ```bash
