@@ -131,12 +131,12 @@ jobs:
             cp -r /root/.local/share/godot/export_templates/4.5.stable ~/.local/share/godot/export_templates/4.5.stable
           fi
       
-      - name: Setup Android SDK
+      - name: Install Android build template
         run: |
-          mkdir -p /root/.config/godot
-          echo "[android]" > /root/.config/godot/editor_settings-4.tres
-          echo "export/android/android_sdk_path = \"/root/android-sdk\"" >> /root/.config/godot/editor_settings-4.tres
-          echo "export/android/debug_keystore = \"/root/debug.keystore\"" >> /root/.config/godot/editor_settings-4.tres
+          mkdir -p android/build
+          cd android/build
+          unzip -q /root/.local/share/godot/export_templates/4.5.stable/android_source.zip
+          echo "4.5.stable" > .build_version
       
       - name: Import project
         run: |
