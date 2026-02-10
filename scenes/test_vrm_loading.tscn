@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://test_vrm_loading"]
+
+[ext_resource type="Script" path="res://scripts/test_vrm_loading.gd" id="1"]
+
+[node name="TestVRMLoading" type="Node"]
+script = ExtResource("1")
