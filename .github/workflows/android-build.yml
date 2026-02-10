@@ -38,6 +38,11 @@ jobs:
         run: |
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
       
+      - name: Install system dependencies for GDMP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgles2-mesa libgles2-mesa-dev
+      
       - name: Download and setup Godot
         run: |
           wget -q https://github.com/godotengine/godot/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip

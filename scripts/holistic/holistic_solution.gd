@@ -144,34 +144,32 @@ func setup_camera() -> bool:
 	print("[HolisticSolution] CameraServer instance: ", server)
 	print("[HolisticSolution] Initial feed count: ", server.get_feed_count())
 	
-	# On some platforms (especially Windows), cameras need to be added manually
-	# Try to add cameras if none are present
+	# On some platforms, cameras need to be discovered by enabling monitoring
+	# Try to enable monitoring if no feeds are present
 	if server.get_feed_count() == 0:
-		print("[HolisticSolution] No feeds detected, trying to add...")
+		print("[HolisticSolution] No feeds detected, enabling feed monitoring...")
 		if DebugLogger:
-			DebugLogger.log_debug("HolisticSolution", "No camera feeds detected, attempting to add default cameras...")
+			DebugLogger.log_debug("HolisticSolution", "No camera feeds detected, enabling monitoring...")
 		
-		# Try to add cameras by index (0-9)
-		for i in range(10):
-			var feed_name = "Camera " + str(i)
-			print("[HolisticSolution] Attempting to add feed: ", feed_name)
-			var feed = server.add_feed(feed_name, CameraServer.FEED_RGBA_IMAGE, Transform2D())
-			print("[HolisticSolution] Add feed result: ", feed)
-			if feed:
-				if DebugLogger:
-					DebugLogger.log_info("HolisticSolution", "Added camera feed: " + feed_name)
-				print("[HolisticSolution] Successfully added: ", feed_name)
-				break  # Successfully added at least one feed
+		# Enable camera feed monitoring
+		server.monitoring_feeds = true
 		
-		# Check again after trying to add
-		print("[HolisticSolution] Feed count after adding: ", server.get_feed_count())
+		# Wait a moment for feeds to be discovered
+		await get_tree().create_timer(0.5).timeout
+		
+		# Check again after enabling monitoring
+		print("[HolisticSolution] Feed count after enabling monitoring: ", server.get_feed_count())
 		if server.get_feed_count() == 0:
 			print("[HolisticSolution] ERROR: Still no camera feeds available")
 			if DebugLogger:
-				DebugLogger.log_error("HolisticSolution", "No camera feeds available even after attempting to add")
+				DebugLogger.log_error("HolisticSolution", "No camera feeds available even after enabling monitoring")
 				DebugLogger.log_error("HolisticSolution", "Please ensure a webcam is connected and accessible")
 			push_error("No camera feeds available - please connect a webcam")
 			return false
+		else:
+			if DebugLogger:
+				DebugLogger.log_info("HolisticSolution", "Camera feeds discovered: " + str(server.get_feed_count()))
+			print("[HolisticSolution] Successfully discovered ", server.get_feed_count(), " camera feed(s)")
 	
 	# Get the first available feed
 	print("[HolisticSolution] Getting feed 0...")
